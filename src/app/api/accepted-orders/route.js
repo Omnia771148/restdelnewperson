@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "../../../../lib/mongoose";
-import Order from "../../../../models/Order";
+import AcceptedOrder from "../../../../models/AcceptedOrder";
 
 export async function GET(request) {
   await connectDB();
@@ -10,25 +10,31 @@ export async function GET(request) {
     const restaurantId = searchParams.get("restaurantId");
 
     if (!restaurantId) {
-      return NextResponse.json({ success: false, message: "Restaurant ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Restaurant ID is required" },
+        { status: 400 }
+      );
     }
 
-    const orders = await Order.find({ restaurantId }).sort({ orderDate: -1 });
+    // Fetch accepted orders strictly matching this restaurantId
+    const orders = await AcceptedOrder.find({ restaurantId }).sort({ acceptedAt: -1 });
 
-    // Always send items as array
     const formattedOrders = orders.map(order => ({
       _id: order._id,
       userId: order.userId,
       orderDate: order.orderDate,
+      acceptedAt: order.acceptedAt,
       totalCount: order.totalCount,
       totalPrice: order.totalPrice,
-      
       items: Array.isArray(order.items) ? order.items : []
     }));
 
     return NextResponse.json({ success: true, orders: formattedOrders });
   } catch (err) {
-    console.error("❌ Error fetching orders:", err);
-    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
+    console.error("❌ Error fetching accepted orders:", err);
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    );
   }
 }
