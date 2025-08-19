@@ -13,11 +13,13 @@ export default function Home() {
 
     if (email === "kushas" && password === "1234") {
       localStorage.setItem("restid", "1");
+      localStorage.setItem("restlocation", "https://maps.app.goo.gl/EaQzfEaVe1r1c6s18");
       setRestId("1");
       alert("restid set to 1 in localStorage.");
       
     } else if (email === "sno" && password === "12345") {
       localStorage.setItem("restid", "3");
+      localStorage.setItem("restlocation", "https://maps.app.goo.gl/hkS6Hha1cetHDUE7A");
       setRestId("3");
       alert("restid set to 1 in localStorage.");
     }

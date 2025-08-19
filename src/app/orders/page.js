@@ -6,7 +6,8 @@ import axios from 'axios';
 export default function OrdersList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const rest = "1ff"
+  const rest = typeof window !== "undefined" ? localStorage.getItem("restlocation") : null;
+
 
   useEffect(() => {
     const restaurantId = localStorage.getItem("restid");

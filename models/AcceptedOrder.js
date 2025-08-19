@@ -14,6 +14,7 @@ const acceptedOrderSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true },
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
+  rest : { type: String},
 });
 
 const AcceptedOrder =
