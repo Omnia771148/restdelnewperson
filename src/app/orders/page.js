@@ -1,13 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 
 export default function OrdersList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const rest = typeof window !== "undefined" ? localStorage.getItem("restlocation") : null;
+  const [audioEnabled, setAudioEnabled] = useState(false);
 
+  const rest = typeof window !== "undefined" ? localStorage.getItem("restlocation") : null;
+  const prevOrdersRef = useRef([]);
+
+  // Enable audio on first click
+  const enableAudio = () => {
+    setAudioEnabled(true);
+    const audio = new Audio('/noti.mp3');
+    audio.play().catch(err => console.error("Audio play failed:", err));
+  };
 
   useEffect(() => {
     const restaurantId = localStorage.getItem("restid");
@@ -22,27 +31,43 @@ export default function OrdersList() {
       try {
         const response = await axios.get(`/api/orders?restaurantId=${restaurantId}`);
         if (response.data.success) {
-          setOrders(response.data.orders);
+          const newOrders = response.data.orders;
+
+          // Compare previous orders and new orders
+          const prevIds = prevOrdersRef.current.map(o => o._id);
+          const newIds = newOrders.map(o => o._id);
+
+          const isUpdated = newIds.some(id => !prevIds.includes(id)); // only new orders trigger audio
+
+          if (isUpdated && audioEnabled) {
+            const audio = new Audio('/noti.mp3');
+            audio.play().catch(err => console.error("Audio play failed:", err));
+          }
+
+          setOrders(newOrders);
+          prevOrdersRef.current = newOrders;
         } else {
-          alert("Failed to load orders");
+          console.warn("Failed to load orders");
         }
       } catch (err) {
         console.error("Fetch orders error:", err);
-        alert("Something went wrong.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrders();
-  }, []);
+    fetchOrders(); // initial fetch
+    const interval = setInterval(fetchOrders, 3000); // polling
+    return () => clearInterval(interval);
+  }, [audioEnabled]); // depends on audioEnabled
 
   async function acceptOrder(orderId) {
     try {
-      const res = await axios.post("/api/orders/accept", { orderId,rest });
+      const res = await axios.post("/api/orders/accept", { orderId, rest });
       if (res.data.success) {
         alert("✅ Order accepted!");
-        setOrders(orders.filter(order => order._id !== orderId));
+        setOrders(prevOrders => prevOrders.filter(order => order._id !== orderId));
+        prevOrdersRef.current = prevOrdersRef.current.filter(order => order._id !== orderId);
       } else {
         alert("❌ " + res.data.message);
       }
@@ -57,14 +82,31 @@ export default function OrdersList() {
   return (
     <div style={{ padding: '20px' }}>
       <h2>🧾 Orders for Your Restaurant</h2>
-      
+
+      {!audioEnabled && (
+        <button
+          onClick={enableAudio}
+          style={{
+            marginBottom: '12px',
+            padding: '6px 12px',
+            backgroundColor: '#ff9800',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Enable Notifications 🔔
+        </button>
+      )}
+
       {orders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {orders.map((order, index) => (
+          {orders.map((order) => (
             <li 
-              key={index}
+              key={order._id}
               style={{
                 marginBottom: '12px',
                 padding: '10px',
@@ -82,15 +124,11 @@ export default function OrdersList() {
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p>No items found in this order.</p>
-              )}
+              ) : <p>No items found in this order.</p>}
               
               <p><strong>Total Price:</strong> ₹{order.totalPrice}</p>
               <p><strong>User ID:</strong> {order.userId}</p>
-              {order.orderDate && (
-                <p><strong>Ordered On:</strong> {new Date(order.orderDate).toLocaleString()}</p>
-              )}
+              {order.orderDate && <p><strong>Ordered On:</strong> {new Date(order.orderDate).toLocaleString()}</p>}
 
               <button
                 onClick={() => acceptOrder(order._id)}
