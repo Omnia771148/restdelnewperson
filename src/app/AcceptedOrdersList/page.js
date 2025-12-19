@@ -74,7 +74,7 @@ export default function AcceptedOrdersList() {
                       {item.name} — ₹{item.price} × {item.quantity}
                     </li>
                   ))}
-                      <button onClick={()=> }></button>
+                      
                  
                 </ul>
               ) : (

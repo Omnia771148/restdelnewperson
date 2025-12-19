@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import Link from 'next/link';
 
 export default function OrdersList() {
   const [orders, setOrders] = useState([]);
@@ -82,6 +83,9 @@ export default function OrdersList() {
   return (
     <div style={{ padding: '20px' }}>
       <h2>🧾 Orders for Your Restaurant</h2>
+      <Link href="/AcceptedOrdersList">
+      <button>View Accepted </button>
+      </Link>
 
       {!audioEnabled && (
         <button

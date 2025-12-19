@@ -1,30 +1,61 @@
-'use client';
+ 
+ 'use client';
+
 import { useState } from "react";
-import axios from "axios";
+import Link from "next/link";
 
 export default function Home() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [restId, setRestId] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('/api/users', { name, email });
-      alert("login done")
-    } catch (err) {
-      console.error(err);
+
+    if (email === "kushas" && password === "1234") {
+      localStorage.setItem("restid", "1");
+      localStorage.setItem("restlocation", "https://maps.app.goo.gl/EaQzfEaVe1r1c6s18");
+      setRestId("1");
+      alert("restid set to 1 in localStorage.");
+      
+    } else if (email === "sno" && password === "12345") {
+      localStorage.setItem("restid", "3");
+      localStorage.setItem("restlocation", "https://maps.app.goo.gl/hkS6Hha1cetHDUE7A");
+      setRestId("3");
+      alert("restid set to 1 in localStorage.");
     }
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <h1>Input Name</h1><br />
-        <input type="text" onChange={(e) => setName(e.target.value)} /><br />
-        <h1>Email</h1><br />
-        <input type="text" onChange={(e) => setEmail(e.target.value)} /><br />
-        <button type="submit">Submit</button>
+    <div style={{ padding: '20px' }}>
+      <form onSubmit={handleLogin}>
+        <h2>Login</h2>
+
+        <label>Email:</label>
+        <input
+          type="text"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <br />
+
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />
+        <br /><br />
+<Link href="/orders">
+        <button type="submit">Login</button>
+        </Link>
       </form>
+
+      {restId && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>Stored Rest ID: {restId}</h3>
+        </div>
+      )}
     </div>
   );
 }
