@@ -23,6 +23,7 @@ export async function GET(request) {
       totalCount: order.totalCount,
       totalPrice: order.totalPrice,
       
+      
       items: Array.isArray(order.items) ? order.items : []
     }));
 

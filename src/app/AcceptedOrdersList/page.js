@@ -7,6 +7,7 @@ export default function AcceptedOrdersList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Fetch orders
   useEffect(() => {
     const restaurantId = localStorage.getItem("restid");
 
@@ -36,18 +37,20 @@ export default function AcceptedOrdersList() {
     fetchAcceptedOrders();
   }, []);
 
+
+
   if (loading) return <p>Loading accepted orders...</p>;
 
   return (
     <div style={{ padding: '20px' }}>
       <h2>✅ Accepted Orders</h2>
-      
+
       {orders.length === 0 ? (
         <p>No accepted orders found.</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {orders.map((order) => (
-            <li 
+            <li
               key={order._id}
               style={{
                 marginBottom: '12px',
@@ -61,7 +64,9 @@ export default function AcceptedOrdersList() {
               <p><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleString()}</p>
               <p><strong>Accepted On:</strong> {order.acceptedAt ? new Date(order.acceptedAt).toLocaleString() : 'N/A'}</p>
               <p><strong>Total Price:</strong> ₹{order.totalPrice}</p>
+              <p><strong>Status:</strong> {order.status || "active"}</p>
               <p><strong>Item(s):</strong></p>
+
               {Array.isArray(order.items) && order.items.length > 0 ? (
                 <ul>
                   {order.items.map((item, idx) => (
@@ -69,6 +74,8 @@ export default function AcceptedOrdersList() {
                       {item.name} — ₹{item.price} × {item.quantity}
                     </li>
                   ))}
+                      <button onClick={()=> }></button>
+                 
                 </ul>
               ) : (
                 <p>No items found</p>

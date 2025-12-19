@@ -15,6 +15,7 @@ const acceptedOrderSchema = new mongoose.Schema({
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
   rest : { type: String},
+  status: { type: String, default: "active"},
 });
 
 const AcceptedOrder =
